@@ -1,0 +1,60 @@
+{
+  "uid": "iris-mlops",
+  "title": "Iris Model API - MLOps Monitoring",
+  "timezone": "browser",
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Total predictions",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum(iris_predictions_total)" }]
+    },
+    {
+      "id": 2, "type": "stat", "title": "Model accuracy",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "decimals": 1 } },
+      "targets": [{ "refId": "A", "expr": "max(iris_model_accuracy)" }]
+    },
+    {
+      "id": 3, "type": "stat", "title": "API pods up",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum(up{job=\"iris-api\"})" }]
+    },
+    {
+      "id": 4, "type": "stat", "title": "p95 latency",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s", "decimals": 4 } },
+      "targets": [{ "refId": "A", "expr": "histogram_quantile(0.95, sum(rate(iris_request_latency_seconds_bucket[1m])) by (le))" }]
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "Request rate (req/s) by endpoint",
+      "gridPos": { "x": 0, "y": 5, "w": 12, "h": 9 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum(rate(iris_requests_total[1m])) by (endpoint)", "legendFormat": "{{endpoint}}" }]
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "Predictions per species (rate)",
+      "gridPos": { "x": 12, "y": 5, "w": 12, "h": 9 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum(rate(iris_predictions_total[1m])) by (species)", "legendFormat": "{{species}}" }]
+    },
+    {
+      "id": 7, "type": "piechart", "title": "Prediction distribution",
+      "gridPos": { "x": 0, "y": 14, "w": 12, "h": 9 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum(iris_predictions_total) by (species)", "legendFormat": "{{species}}", "instant": true }]
+    },
+    {
+      "id": 8, "type": "timeseries", "title": "Requests per pod",
+      "gridPos": { "x": 12, "y": 14, "w": 12, "h": 9 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum(rate(iris_requests_total[1m])) by (instance)", "legendFormat": "{{instance}}" }]
+    }
+  ]
+}
